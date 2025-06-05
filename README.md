@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains scripts for processing and analysing CUT&RUN and RNA-seq data from tammar wallaby (*Macropus eugenii*, MEU) and Tasmanian devil (*Sarcophilus harrisii*, SHA). The pipelines use FastQC, MultiQC, Trimmomatic, Subread, MACS3, bedtools, and custom R scripts for data processing and visualisation.
+This repository contains scripts for processing and analysing CUT&RUN and RNA-seq data from tammar wallaby (*Macropus eugenii*, MEU) and Tasmanian devil (*Sarcophilus harrisii*, SHA). The pipelines use [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/), [MultiQC](https://multiqc.info/), [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic), [Subread](http://subread.sourceforge.net/), [MACS3](https://github.com/macs3-project/MACS), [bedtools](https://bedtools.readthedocs.io/en/latest/), and custom R scripts for data processing and visualisation.
 
 ## CUT&RUN
 
