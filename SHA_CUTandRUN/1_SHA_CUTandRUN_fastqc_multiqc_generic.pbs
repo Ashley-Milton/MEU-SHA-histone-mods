@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#PBS -N SHA_CUTandRUN_fastqc
+#PBS -l select=1:ncpus=8:mem=20gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -M email
+#PBS -m ae
+
+module load fastqc/0.11.9
+cd /path/to/raw_fastq_files
+
+#-t threads
+#-o output
+fastqc -t 8 *.fastq.gz -o /path/to/fastQC_multiQC_output
+
+#optional
+#this produces a single combined report
+module load multiqc/1.13
+cd /path/to/fastQC_multiQC_output
+
+multiqc .

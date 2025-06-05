@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#PBS -N SHA_RNAseq_fastqc
+#PBS -l select=1:ncpus=8:mem=20gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -M email
+#PBS -m ae
+
+module load fastqc/0.11.9
+
+#Females
+cd /path/to/female/raw_sequences
+
+fastqc -t 8 *.fastq.gz -o /path/to/fastQC_output
+
+#Males
+cd /path/to/male/raw_sequences
+
+fastqc -t 8 *.fastq.gz -o /path/to/fastQC_output
+
+#optional
+#this produces a single combined report
+module load multiqc/1.13
+cd /path/to/fastQC_output
+
+multiqc .

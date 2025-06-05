@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#PBS -N SHA_macs3_peaks
+#PBS -l select=1:ncpus=1:mem=100gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -M email
+#PBS -m ae
+
+module load macs3/3.0.0
+
+#Define the input directory and output directory
+indir="/path/to/subread_align_output"
+outdir="/path/to/macs3_output"
+
+cd ${indir}
+
+#Loop over each BAM file and call macs3
+for bamfile in F_*_trimmed_subread.bam M_*_trimmed_subread.bam; do
+  #Skip control files
+  if [[ "$bamfile" == *"input"* ]]; then
+    continue
+  fi
+
+  #Extract the base name of the BAM file
+  base=$(basename "$bamfile" "_trimmed_subread.bam")
+
+  #Extract the prefix (e.g., F_TD or M_TD)
+  prefix=$(echo "$base" | cut -d'_' -f1,2)
+
+  #Find the control file
+  control=$(ls ${prefix}_input*_trimmed_subread.bam)
+
+  #Determine if the BAM file is broad or narrow
+  if [[ "$bamfile" == *"H3K9me3"* || "$bamfile" == *"H3K27me3"* || "$bamfile" == *"H4K20me3"* ]]; then
+    broad="--broad"
+  else
+    broad=""
+  fi
+
+  #Print the variables
+  echo "Processing BAM file: $bamfile"
+  echo "Base name: $base"
+  echo "Prefix: $prefix"
+  echo "Control file: $control"
+  echo "Broad option: $broad"
+
+  #Call macs3
+  macs3 callpeak \
+    -t "$bamfile" \
+    -c "$control" \
+    -f BAM \
+    -g 3086627671 \
+    -n "$base" \
+    -B \
+    $broad \
+    --outdir "$outdir" \
+    -q 0.05
+done

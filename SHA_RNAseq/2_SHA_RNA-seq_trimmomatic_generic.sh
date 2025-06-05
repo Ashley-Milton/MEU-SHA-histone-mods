@@ -1,0 +1,48 @@
+#!/bin/bash 
+#PBS -N Trimmomatic_paired_parallel_SHA_RNAseq
+#PBS -l select=1:ncpus=8:mem=120gb
+#PBS -l walltime=8:00:00
+#PBS -j oe
+#PBS -M email
+#PBS -m ae
+
+###set the following variables
+#directory containing all your raw sequences
+#output directory
+#file extension identifier to identify R1 and R2 file, (usually everything including and after "R1" or "R2"). NOTE THAT only the R1 identifier will be used to select input sequences, so make sure that the R1 and R2 raw matching files have identical file name up until the "R1" and "R2" extension
+#trimmomatic trimming options
+
+indir="/path/to/female/raw_sequences" #Female
+outdir="/path/to/trimmomatic_output"
+R1identifier="R1_001.fastq.gz"
+R2identifier="R2_001.fastq.gz"
+trim_option="CROP:95 HEADCROP:0 SLIDINGWINDOW:5:15 MINLEN:36"
+
+###NOTE, make sure you see all of your raw R1 input files with the following ls command in your ${indir}
+#ls *${R1identifier}
+
+module load trimmomatic/0.39 parallel
+cd ${indir}
+
+for f in $(ls *${R1identifier}); do echo ${f/${R1identifier}/}; done \
+| parallel --jobs ${NCPUS} \
+trimmomatic PE -threads ${NCPUS} -phred33 \
+{}${R1identifier} \
+{}${R2identifier} \
+-baseout ${outdir}/{}_trimmed.fq.gz \
+ILLUMINACLIP:/path/to/utils/TruSeq3-PE.fa:2:30:10 ${trim_option}
+
+indir="/path/to/male/raw_sequences" #Male
+
+###NOTE, make sure you see all of your raw R1 input files with the following ls command in your ${indir}
+#ls *${R1identifier}
+
+cd ${indir}
+
+for f in $(ls *${R1identifier}); do echo ${f/${R1identifier}/}; done \
+| parallel --jobs ${NCPUS} \
+trimmomatic PE -threads ${NCPUS} -phred33 \
+{}${R1identifier} \
+{}${R2identifier} \
+-baseout ${outdir}/{}_trimmed.fq.gz \
+ILLUMINACLIP:/path/to/utils/TruSeq3-PE.fa:2:30:10 ${trim_option}

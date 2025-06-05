@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#PBS -N SHA_RNAseq_Featurecount
+#PBS -l select=1:ncpus=8:mem=30gb
+#PBS -l walltime=1:00:00
+#PBS -j oe
+#PBS -M email
+#PBS -m ae
+
+cd /path/to/featurecounts_output
+module load subread/2.0.2
+
+featureCounts \
+-O \
+-s 0 \
+-p \
+-a /path/to/annotation_file.gtf \
+-t exon \
+-g gene_id \
+-T ${NCPUS} \
+-o /path/to/featurecounts_output/featureCounts_s0.txt \
+/path/to/subread_output/*_subread.bam

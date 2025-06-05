@@ -1,0 +1,46 @@
+#!/bin/bash 
+#PBS -N MEU_CUTandRUN_chrom_wide_summary_stats
+#PBS -l select=1:ncpus=8:mem=250gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -M email
+#PBS -m ae
+
+#Directory containing the pileup files
+input_dir="/path/to/macs3_output"
+output_dir="/path/to/Chrom_wide_summary_stats_output"
+sizes_file="/path/to/sizes.genome"
+
+#Create the output directory if it doesn't exist
+mkdir -p "$output_dir"
+
+#Loop through all files containing "pileup" in their name
+for input_file in "$input_dir"/*pileup*; do
+    #Extract the base name of the file (e.g., "sample1.pileup.bdg" -> "sample1")
+    base_name=$(basename "$input_file" .bdg)
+    
+    #Define the output file
+    output_file="$output_dir/${base_name}_chrom_avg.txt"
+    
+    #Process the file with awk
+    awk 'NR==FNR {chrom_lengths[$1] = $2; next} {
+        #Calculate the length of the region
+        region_length = $3 - $2
+        
+        #Accumulate the total height (weighted by region length) and total length for each chromosome
+        sum[$1] += region_length * $4
+        covered_length[$1] += region_length
+    }
+    END {
+        for (chrom in sum) {
+            #Get the total chromosome length from the sizes.genome file
+            total_length = chrom_lengths[chrom]
+            
+            #Add the uncovered regions (with height 0) to the total length
+            uncovered_length = total_length - covered_length[chrom]
+            
+            #Calculate the average height
+            print chrom, sum[chrom] / total_length
+        }
+    }' "$sizes_file" "$input_file" > "$output_file"
+done
